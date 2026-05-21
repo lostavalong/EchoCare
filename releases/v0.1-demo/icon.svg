@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="EchoCare icon">
+  <defs>
+    <linearGradient id="bg" x1="72" y1="64" x2="440" y2="448" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#68c7a5"/>
+      <stop offset="0.55" stop-color="#6a94d8"/>
+      <stop offset="1" stop-color="#ef8c72"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="116" fill="url(#bg)"/>
+  <path d="M154 266c0-72 46-124 102-124s102 52 102 124c0 60-39 104-102 104s-102-44-102-104Z" fill="white" opacity="0.92"/>
+  <path d="M202 258c20 24 88 24 108 0" fill="none" stroke="#268875" stroke-width="24" stroke-linecap="round"/>
+  <path d="M184 202h144" stroke="#17211f" stroke-width="28" stroke-linecap="round" opacity="0.82"/>
+  <path d="M154 386c42 28 162 28 204 0" fill="none" stroke="white" stroke-width="30" stroke-linecap="round" opacity="0.72"/>
+</svg>

@@ -1,0 +1,17 @@
+{
+  "name": "EchoCare",
+  "short_name": "EchoCare",
+  "description": "基于语音输入的情绪记录、压力感知和陪伴推荐助手。",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#edf8f4",
+  "theme_color": "#268875",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

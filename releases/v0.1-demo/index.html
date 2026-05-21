@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="EchoCare 是一个基于语音输入的情绪记录、压力感知和陪伴推荐 PWA 原型。"
+    />
+    <meta name="theme-color" content="#edf8f4" />
+    <title>EchoCare | 语音情绪陪伴助手</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-frame" aria-label="EchoCare 应用原型">
+      <section class="theme-dock" id="themeDock" aria-label="主题选择">
+        <button class="theme-chip active" type="button" data-theme="mint"><span style="--swatch:#68c7a5"></span>薄荷</button>
+        <button class="theme-chip" type="button" data-theme="rose"><span style="--swatch:#e99aae"></span>粉色</button>
+        <button class="theme-chip" type="button" data-theme="blue"><span style="--swatch:#7bb4e8"></span>浅蓝</button>
+        <button class="theme-chip" type="button" data-theme="cream"><span style="--swatch:#d8b77b"></span>米色</button>
+        <button class="theme-chip" type="button" data-theme="night"><span style="--swatch:#25354a"></span>夜间</button>
+      </section>
+      <section class="phone-shell">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">EchoCare</p>
+            <h1>语音情绪陪伴助手</h1>
+          </div>
+          <div class="top-actions">
+            <button class="theme-toggle" id="themeToggle" type="button" aria-label="切换主题">主题</button>
+            <button class="icon-button" id="resetDemo" type="button" aria-label="重置演示数据">R</button>
+          </div>
+        </header>
+
+        <nav class="tabbar" aria-label="主要导航">
+          <button class="tab active" type="button" data-view="dashboard">概览</button>
+          <button class="tab" type="button" data-view="record">记录</button>
+          <button class="tab" type="button" data-view="insight">分析</button>
+          <button class="tab" type="button" data-view="recommend">推荐</button>
+          <button class="tab" type="button" data-view="favorites">收藏</button>
+          <button class="tab" type="button" data-view="trends">趋势</button>
+          <button class="tab" type="button" data-view="survey">测量</button>
+        </nav>
+
+        <section class="view active" id="dashboard" aria-labelledby="dashboardTitle">
+          <div class="hero-panel">
+            <div>
+              <p class="soft-label" id="todayLabel">今天</p>
+              <h2 id="dashboardTitle">先听见自己</h2>
+              <p id="todayMessage">用一段语音记录此刻状态，EchoCare 会帮你整理情绪、压力和适合的陪伴内容。</p>
+            </div>
+            <div class="mood-orbit" aria-hidden="true">
+              <span></span>
+              <strong id="heroStress">--</strong>
+            </div>
+          </div>
+
+          <div class="metric-grid">
+            <article class="metric-card">
+              <span>今日情绪</span>
+              <strong id="currentEmotion">暂无</strong>
+            </article>
+            <article class="metric-card">
+              <span>压力指数</span>
+              <strong id="currentStress">--</strong>
+            </article>
+            <article class="metric-card">
+              <span>记录次数</span>
+              <strong id="entryCount">0</strong>
+            </article>
+          </div>
+
+          <button class="primary-action" type="button" data-view-target="record">开始语音记录</button>
+
+          <section class="content-block">
+            <div class="section-heading">
+              <h3>最近记录</h3>
+              <button class="text-button" type="button" id="seedDemo">载入示例</button>
+            </div>
+            <div class="entry-list" id="recentEntries"></div>
+          </section>
+        </section>
+
+        <section class="view" id="record" aria-labelledby="recordTitle">
+          <div class="section-heading compact">
+            <div>
+              <p class="soft-label">Voice Journal</p>
+              <h2 id="recordTitle">今天想说些什么？</h2>
+            </div>
+          </div>
+
+          <div class="record-panel">
+            <div class="mic-stage">
+              <button class="mic-button" id="voiceButton" type="button" aria-label="开始或停止语音识别">
+                <span class="mic-core"></span>
+              </button>
+            </div>
+            <div class="wave" aria-hidden="true">
+              <span></span><span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+
+          <label class="field-label" for="journalText">记录内容</label>
+          <textarea
+            id="journalText"
+            rows="7"
+            placeholder="例如：最近作业很多，我有点焦虑，晚上也睡不好。"
+          ></textarea>
+
+          <div class="prompt-row" id="promptRow"></div>
+
+          <button class="primary-action" type="button" id="analyzeButton">生成情绪分析</button>
+          <p class="hint">当前版本使用本地规则模拟 AI 分析；接入 DeepSeek 时由后端安全转发。</p>
+        </section>
+
+        <section class="view" id="insight" aria-labelledby="insightTitle">
+          <div class="section-heading compact">
+            <div>
+              <p class="soft-label">Emotion Insight</p>
+              <h2 id="insightTitle">情绪分析</h2>
+            </div>
+            <span class="status-pill" id="analysisMode">Demo AI</span>
+          </div>
+
+          <article class="insight-card empty-state" id="insightEmpty">
+            <h3>还没有分析结果</h3>
+            <p>完成一次语音或文字记录后，这里会显示情绪、压力、关键词和温和建议。</p>
+            <button class="secondary-action" type="button" data-view-target="record">去记录</button>
+          </article>
+
+          <article class="insight-card" id="insightResult" hidden>
+            <div class="emotion-header">
+              <div>
+                <span class="soft-label">主要情绪</span>
+                <h3 id="resultEmotion">--</h3>
+              </div>
+              <div class="stress-ring" id="stressRing"><strong id="resultStress">--</strong></div>
+            </div>
+            <p class="analysis-text" id="resultFeedback"></p>
+            <div class="keyword-wrap" id="keywordWrap"></div>
+            <div class="suggestion-box">
+              <span>今日建议</span>
+              <p id="resultSuggestion"></p>
+            </div>
+            <button class="primary-action" type="button" data-view-target="recommend">查看陪伴推荐</button>
+          </article>
+        </section>
+
+        <section class="view" id="recommend" aria-labelledby="recommendTitle">
+          <div class="section-heading compact">
+            <div>
+              <p class="soft-label">Care Recommendations</p>
+              <h2 id="recommendTitle">歌单与书籍</h2>
+            </div>
+          </div>
+
+          <article class="profile-panel" id="musicProfileCard">
+            <span>心理音乐画像</span>
+            <strong>等待收藏形成偏好</strong>
+            <p>收藏喜欢的歌曲后，EchoCare 会根据不同情绪下的音乐偏好调整后续推荐。</p>
+          </article>
+
+          <article class="content-block recommendation-block">
+            <div class="section-heading">
+              <h3>情绪歌单</h3>
+              <span class="mini-count" id="playlistGenreCount">多类型</span>
+            </div>
+            <div id="playlistList" class="playlist-list"></div>
+          </article>
+
+          <article class="book-letter" id="bookLetter">
+            <div class="letter-stamp">Echo</div>
+            <span class="soft-label">今日书信</span>
+            <h3 id="bookTitle">等待分析</h3>
+            <p id="bookMeta"></p>
+            <p id="bookReason"></p>
+            <blockquote id="bookQuote">完成一次记录后，这里会出现适合当下情绪的一段书籍摘句或灵感摘句。</blockquote>
+            <button class="letter-save" type="button" id="favoriteBookButton">收藏这封信</button>
+          </article>
+
+          <article class="comfort-card">
+            <span>今日安慰语</span>
+            <p id="comfortText">当你完成一次记录后，这里会生成一段适合当前情绪的原创安慰文字。</p>
+          </article>
+        </section>
+
+
+        <section class="view" id="favorites" aria-labelledby="favoritesTitle">
+          <div class="section-heading compact">
+            <div>
+              <p class="soft-label">Saved Care</p>
+              <h2 id="favoritesTitle">收藏</h2>
+            </div>
+          </div>
+
+          <article class="collection-hero" id="collectionProfileCard">
+            <span>私人情绪偏好档案</span>
+            <strong>等待收藏形成偏好</strong>
+            <p>保存喜欢的歌曲和书信后，EchoCare 会逐步看见你在不同情绪下真正需要的陪伴方式。</p>
+          </article>
+
+          <article class="content-block favorite-block collection-section">
+            <div class="section-heading">
+              <h3>收藏歌单</h3>
+              <button class="text-button" type="button" id="clearSongFavorites">清空</button>
+            </div>
+            <div id="favoriteSongs" class="favorite-list"></div>
+          </article>
+
+          <article class="content-block favorite-block collection-section">
+            <div class="section-heading">
+              <h3>收藏书摘</h3>
+              <button class="text-button" type="button" id="clearBookFavorites">清空</button>
+            </div>
+            <div id="favoriteBooks" class="favorite-list"></div>
+          </article>
+        </section>
+
+        <section class="view" id="trends" aria-labelledby="trendsTitle">
+          <div class="section-heading compact">
+            <div>
+              <p class="soft-label">Weekly Trends</p>
+              <h2 id="trendsTitle">一周趋势</h2>
+            </div>
+          </div>
+
+          <article class="summary-panel">
+            <h3 id="weeklyEmotion">暂无记录</h3>
+            <p id="weeklyNarrative">完成几次记录后，这里会生成本周情绪和压力概览。</p>
+          </article>
+
+          <div class="chart-card">
+            <div class="bar-chart" id="barChart" aria-label="压力趋势图"></div>
+          </div>
+
+          <article class="content-block">
+            <h3>高频主题</h3>
+            <div class="keyword-wrap" id="weeklyKeywords"></div>
+          </article>
+        </section>
+
+        <section class="view" id="survey" aria-labelledby="surveyTitle">
+          <div class="section-heading compact">
+            <div>
+              <p class="soft-label">UX Measurement</p>
+              <h2 id="surveyTitle">体验测量</h2>
+            </div>
+          </div>
+
+          <form class="survey-form" id="surveyForm">
+            <div class="survey-item">
+              <label for="easyToUse">操作流程容易理解</label>
+              <input id="easyToUse" name="easyToUse" type="range" min="1" max="5" value="4" />
+            </div>
+            <div class="survey-item">
+              <label for="clearFeedback">系统反馈清晰及时</label>
+              <input id="clearFeedback" name="clearFeedback" type="range" min="1" max="5" value="4" />
+            </div>
+            <div class="survey-item">
+              <label for="voiceNatural">语音输入自然轻松</label>
+              <input id="voiceNatural" name="voiceNatural" type="range" min="1" max="5" value="4" />
+            </div>
+            <div class="survey-item">
+              <label for="recognitionAcceptable">识别结果可以接受</label>
+              <input id="recognitionAcceptable" name="recognitionAcceptable" type="range" min="1" max="5" value="3" />
+            </div>
+            <div class="survey-item">
+              <label for="privacyTrust">我信任它处理个人情绪内容</label>
+              <input id="privacyTrust" name="privacyTrust" type="range" min="1" max="5" value="4" />
+            </div>
+            <div class="survey-item">
+              <label for="emotionalComfort">表达情绪时感到舒适</label>
+              <input id="emotionalComfort" name="emotionalComfort" type="range" min="1" max="5" value="5" />
+            </div>
+            <button class="primary-action" type="submit">生成测量结果</button>
+          </form>
+
+          <article class="survey-result" id="surveyResult">
+            <span>综合评分</span>
+            <strong>--</strong>
+            <p>提交问卷后生成用户体验测量摘要。</p>
+          </article>
+        </section>
+      </section>
+    </main>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
