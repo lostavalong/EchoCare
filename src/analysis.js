@@ -424,6 +424,297 @@ export function getWeeklySummary(entries) {
   };
 }
 
+const CRISIS_PATTERN = /(不想活|自杀|自残|伤害自己|伤害别人|活不下去|结束生命|撑不住了)/i;
+
+const REGULATION_CARDS = [
+  {
+    id: 'anxiety-loop',
+    title: '焦虑循环：先降唤醒，再处理问题',
+    tag: '焦虑调节',
+    emotions: ['anxious'],
+    keywords: ['学习任务', '睡眠', '自我要求'],
+    principle: '焦虑常由身体唤醒、灾难化想法和回避行为互相加强。先让身体慢下来，问题才更容易被拆开。',
+    appliesTo: '适合反复担心结果、脑内停不下来、睡前更紧绷的时候。',
+    practice: ['把担心写成一句具体预测，而不是一团感受。', '做 3 轮 4-6 呼吸，让呼气比吸气更长。', '写下一个 10 分钟内能开始的小动作。'],
+  },
+  {
+    id: 'task-splitting',
+    title: '任务切片：把压力从“全部”变成“下一步”',
+    tag: '学习压力',
+    emotions: ['anxious', 'tired'],
+    keywords: ['学习任务', '自我要求'],
+    principle: '大任务会让大脑把困难误读成危险。切成最小可执行动作，可以恢复控制感。',
+    appliesTo: '适合 ddl、展示、论文、考试复习和拖延后的慌张。',
+    practice: ['列出所有任务，只圈出今天必须推进的一件。', '把它改写成 20 分钟内能完成的动作。', '完成后只复盘下一步，不评价整个人。'],
+  },
+  {
+    id: 'sleep-pressure-loop',
+    title: '睡眠-压力循环：今晚先保护恢复',
+    tag: '睡眠压力',
+    emotions: ['anxious', 'tired'],
+    keywords: ['睡眠', '身体状态'],
+    principle: '睡眠不足会放大负面解释，压力又会让入睡更难。打断循环时，优先降低晚间唤醒水平。',
+    appliesTo: '适合熬夜、早醒、睡不着、白天疲惫但晚上停不下来的状态。',
+    practice: ['睡前 30 分钟把未完成事项写到明天清单。', '把屏幕和学习材料移出床边。', '用身体扫描替代反复思考问题。'],
+  },
+  {
+    id: 'cognitive-reframing',
+    title: '认知重评：区分事实、猜测和需要',
+    tag: '认知行为',
+    emotions: ['anxious', 'sad'],
+    keywords: ['人际关系', '自我要求', '未来规划'],
+    principle: '情绪不是错误，但自动想法可能把事实、猜测和自我评价混在一起。分开它们能减少被想法推着走。',
+    appliesTo: '适合担心被评价、反复想失败、觉得自己不够好的时候。',
+    practice: ['写下一个最刺痛你的想法。', '标出其中哪些是事实，哪些只是推测。', '把自我批评改写成一个可照顾的需要。'],
+  },
+  {
+    id: 'emotion-acceptance',
+    title: '情绪接纳：允许低落被看见',
+    tag: '情绪理解',
+    emotions: ['sad'],
+    keywords: ['人际关系', '自我觉察'],
+    principle: '低落常提示关系、意义或休息的需要。接纳不是放任，而是停止把情绪当成敌人。',
+    appliesTo: '适合委屈、孤独、想哭、没有动力但仍想被理解的时候。',
+    practice: ['给此刻情绪命名，不急着解释原因。', '写一句“我其实需要……”。', '联系一个不需要过度解释的人或空间。'],
+  },
+  {
+    id: 'recovery-budget',
+    title: '恢复预算：给身体留出心理电量',
+    tag: '耗竭修复',
+    emotions: ['tired'],
+    keywords: ['身体状态', '睡眠'],
+    principle: '疲惫不是意志力不足，而可能是持续消耗后的信号。恢复也需要被安排进计划。',
+    appliesTo: '适合头疼、困倦、没精神、一直硬撑或效率明显下降。',
+    practice: ['把今晚任务减到最低可交付版本。', '安排一段没有输入的休息时间。', '记录一个身体已经发出的提醒。'],
+  },
+  {
+    id: 'positive-savoring',
+    title: '积极巩固：把好状态存成资源',
+    tag: '积极心理',
+    emotions: ['happy', 'calm'],
+    keywords: ['人际关系', '自我觉察'],
+    principle: '积极体验需要被重复看见，才会变成以后可调用的心理资源。',
+    appliesTo: '适合完成任务、关系支持、散步放松或平静稳定的时候。',
+    practice: ['写下今天一个具体的好片段。', '标出它来自能力、关系还是环境支持。', '把这个片段收藏成下次低落时的证据。'],
+  },
+];
+
+export const SCREENING_FORMS = {
+  anxiety: {
+    title: '焦虑风险筛查',
+    subtitle: '回想最近两周，这些体验出现的频率。结果只用于自我觉察，不构成诊断。',
+    options: ['完全没有', '几天', '一半以上天数', '几乎每天'],
+    questions: ['紧张、不安或难以放松', '无法停止或控制担心', '对许多事情过度担心', '很难让自己安静下来', '坐立不安或身体紧绷', '容易烦躁或被小事触发', '担心会发生糟糕的事情'],
+  },
+  depression: {
+    title: '低落风险筛查',
+    subtitle: '回想最近两周，这些体验出现的频率。结果只用于自我觉察，不构成诊断。',
+    options: ['完全没有', '几天', '一半以上天数', '几乎每天'],
+    questions: ['对事情缺少兴趣或愉快感', '情绪低落、沮丧或无望', '睡眠变差或睡太多', '疲惫或缺少精力', '食欲明显变化', '对自己失望或自责', '难以集中注意力', '动作或说话变慢，或明显坐立不安', '出现伤害自己的想法'],
+  },
+};
+
+function parseEntryDate(entry, fallbackNow) {
+  const time = Date.parse(entry?.createdAt);
+  return Number.isFinite(time) ? time : fallbackNow.getTime();
+}
+
+function monthlyWindowEntries(entries, now) {
+  const safeEntries = Array.isArray(entries) ? entries : [];
+  const startTime = now.getTime() - 30 * 24 * 60 * 60 * 1000;
+  return safeEntries.filter((entry) => parseEntryDate(entry, now) >= startTime && parseEntryDate(entry, now) <= now.getTime());
+}
+
+function countListValues(entries, selector) {
+  const counts = {};
+  for (const entry of entries) {
+    const values = selector(entry);
+    for (const value of Array.isArray(values) ? values : [values]) increment(counts, value);
+  }
+  return counts;
+}
+
+function sortedKeys(counts, limit = 3) {
+  return Object.entries(counts || {})
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([key]) => key);
+}
+
+function reportRecommendations(riskLevel, topKeywords) {
+  const recommendations = [];
+  if (topKeywords.includes('学习任务')) recommendations.push('把本周最重的任务拆成 20 分钟行动，先完成能启动的一步。');
+  if (topKeywords.includes('睡眠')) recommendations.push('连续三晚优先做睡前降唤醒：写明日清单、减少屏幕、固定上床时间。');
+  if (topKeywords.includes('人际关系')) recommendations.push('把人际压力分成事实、猜测和需要，先表达一个具体请求。');
+  if (riskLevel === '建议专业评估') recommendations.push('如果高压状态持续两周以上，建议预约学校心理中心或专业人员做进一步评估。');
+  if (riskLevel === '需要尽快求助') recommendations.push('如果有伤害自己的想法或计划，请立即联系身边可信任的人、学校心理中心或当地紧急服务。');
+  if (!recommendations.length) recommendations.push('保持记录频率，每周回看一次最常出现的情绪和支持资源。');
+  return recommendations.slice(0, 4);
+}
+
+export function buildMonthlyMentalReport(entries = [], options = {}) {
+  const now = options.now ? new Date(options.now) : new Date();
+  const monthEntries = monthlyWindowEntries(entries, now);
+  if (monthEntries.length === 0) {
+    return {
+      total: 0,
+      averageStress: 0,
+      dominantEmotion: { id: 'calm', label: '暂无记录' },
+      topKeywords: [],
+      riskLevel: '低',
+      emotionPattern: '近 30 天还没有足够记录。完成几次记录后，这里会形成更稳定的心理画像。',
+      pressureSources: [],
+      maintainingFactors: ['记录不足，暂时不推断长期模式。'],
+      protectiveFactors: ['愿意开始记录本身就是重要资源。'],
+      recommendations: ['先完成一次真实记录，再回到概览生成近 30 天分析。'],
+      screeningRecommended: false,
+      screeningType: 'none',
+      professionalHelpMessage: '当前信息不足，不进行诊断。EchoCare 只提供自我觉察和筛查提示。',
+    };
+  }
+
+  const averageStress = Math.round(monthEntries.reduce((sum, entry) => sum + (Number(entry.stress) || 0), 0) / monthEntries.length);
+  const emotionCounts = countListValues(monthEntries, (entry) => entry.emotion?.id || 'calm');
+  const keywordCounts = countListValues(monthEntries, (entry) => entry.keywords || []);
+  const dominantEmotionId = topCount(emotionCounts, 'calm');
+  const dominantEmotion = EMOTIONS.find((emotion) => emotion.id === dominantEmotionId) || DEFAULT_EMOTION;
+  const topKeywords = sortedKeys(keywordCounts, 4);
+  const text = monthEntries.map((entry) => entry.text || '').join(' ');
+  const crisis = monthEntries.some((entry) => CRISIS_PATTERN.test(entry.text || ''));
+  const highStressCount = monthEntries.filter((entry) => Number(entry.stress) >= 70).length;
+  const anxietySignal = (emotionCounts.anxious || 0) >= 2 || (topKeywords.includes('学习任务') && averageStress >= 60);
+  const depressionSignal = (emotionCounts.sad || 0) >= 2 || countMatches(text, ['低落', '无望', '没动力', '想哭']) >= 2;
+  const fatigueSignal = (emotionCounts.tired || 0) >= 2 || topKeywords.includes('睡眠');
+  const sustainedDistress = highStressCount >= 3 || (averageStress >= 70 && monthEntries.length >= 2);
+
+  let riskLevel = '低';
+  if (crisis) riskLevel = '需要尽快求助';
+  else if (sustainedDistress && (anxietySignal || depressionSignal || fatigueSignal)) riskLevel = '建议专业评估';
+  else if (averageStress >= 55 || anxietySignal || depressionSignal || fatigueSignal) riskLevel = '关注';
+
+  let screeningType = 'none';
+  if (crisis) screeningType = 'crisis';
+  else if (riskLevel === '建议专业评估' || riskLevel === '关注') {
+    if (anxietySignal && depressionSignal) screeningType = 'both';
+    else if (depressionSignal) screeningType = 'depression';
+    else if (anxietySignal || fatigueSignal) screeningType = 'anxiety';
+  }
+
+  const pressureSources = topKeywords.length ? topKeywords : ['自我觉察'];
+  const maintainingFactors = [];
+  if (topKeywords.includes('睡眠')) maintainingFactors.push('睡眠不足可能放大担心和低落，让白天更难恢复。');
+  if (topKeywords.includes('学习任务')) maintainingFactors.push('任务堆叠会让大脑把“还没完成”误读成持续威胁。');
+  if (topKeywords.includes('自我要求')) maintainingFactors.push('过高自我要求可能让休息也带着负罪感。');
+  if (topKeywords.includes('人际关系')) maintainingFactors.push('人际评价和边界不清会持续占用心理能量。');
+  if (!maintainingFactors.length) maintainingFactors.push('当前压力来源较分散，建议继续记录以观察稳定模式。');
+
+  const protectiveFactors = ['你已经在持续记录，这说明你仍在尝试理解和照顾自己。'];
+  if ((emotionCounts.happy || 0) + (emotionCounts.calm || 0) > 0) protectiveFactors.push('记录中仍有平静或积极片段，可作为恢复时的心理资源。');
+  if (monthEntries.some((entry) => (entry.keywords || []).includes('人际关系'))) protectiveFactors.push('关系线索反复出现，可信任的人可能是重要支持资源。');
+
+  const emotionPattern = '近 30 天共记录 ' + monthEntries.length + ' 次，主要情绪是' + dominantEmotion.label + '，平均压力指数为 ' + averageStress + '。'
+    + (riskLevel === '低' ? '整体暂未显示持续高风险，但仍建议保留规律记录。' : '压力信号已经值得认真对待，适合结合调节练习和筛查结果进一步观察。');
+  const professionalHelpMessage = riskLevel === '需要尽快求助'
+    ? '这不是诊断。若你正在担心自己会伤害自己或他人，请立即联系身边可信任的人、学校心理中心或当地紧急服务。'
+    : riskLevel === '建议专业评估'
+      ? '这不是诊断。当前记录提示持续高压风险，建议完成筛查；如果筛查分数偏高或状态持续影响学习、睡眠、人际，请预约学校心理中心、心理咨询师或医生做专业评估。'
+      : '这不是诊断。EchoCare 只提供自我觉察和筛查提示；如果痛苦持续加重，仍建议寻求专业支持。';
+
+  return {
+    total: monthEntries.length,
+    averageStress,
+    dominantEmotion: { id: dominantEmotion.id, label: dominantEmotion.label },
+    topKeywords,
+    riskLevel,
+    emotionPattern,
+    pressureSources,
+    maintainingFactors: maintainingFactors.slice(0, 4),
+    protectiveFactors: protectiveFactors.slice(0, 3),
+    recommendations: reportRecommendations(riskLevel, topKeywords),
+    screeningRecommended: screeningType !== 'none',
+    screeningType,
+    professionalHelpMessage,
+    source: 'local',
+  };
+}
+
+function contextHasKeyword(context, keyword) {
+  return (context.keywords || []).includes(keyword) || (context.report?.topKeywords || []).includes(keyword);
+}
+
+export function selectRegulationKnowledge(context = {}) {
+  const emotionId = context.emotionId || context.report?.dominantEmotion?.id || 'calm';
+  const matched = REGULATION_CARDS.filter((card) => {
+    const emotionMatch = card.emotions.includes(emotionId);
+    const keywordMatch = card.keywords.some((keyword) => contextHasKeyword(context, keyword));
+    return emotionMatch || keywordMatch;
+  });
+  const required = [];
+  if (emotionId === 'anxious') required.push('anxiety-loop');
+  if (contextHasKeyword(context, '学习任务')) required.push('task-splitting');
+  if (contextHasKeyword(context, '睡眠')) required.push('sleep-pressure-loop');
+
+  const ordered = [];
+  for (const id of required) {
+    const card = REGULATION_CARDS.find((item) => item.id === id);
+    if (card && !ordered.some((item) => item.id === id)) ordered.push(card);
+  }
+  for (const card of matched) {
+    if (!ordered.some((item) => item.id === card.id)) ordered.push(card);
+  }
+  if (ordered.length < 3) {
+    for (const card of REGULATION_CARDS) {
+      if (!ordered.some((item) => item.id === card.id)) ordered.push(card);
+      if (ordered.length >= 3) break;
+    }
+  }
+  return ordered.slice(0, 5).map((card) => ({ ...card, practice: [...card.practice] }));
+}
+
+function screeningLevel(type, total) {
+  const anxietyLevels = [
+    { max: 4, level: '轻微焦虑风险', riskLevel: '低' },
+    { max: 9, level: '轻度焦虑风险', riskLevel: '关注' },
+    { max: 14, level: '中度焦虑风险', riskLevel: '关注' },
+    { max: 21, level: '重度焦虑风险', riskLevel: '建议专业评估' },
+  ];
+  const depressionLevels = [
+    { max: 4, level: '轻微低落风险', riskLevel: '低' },
+    { max: 9, level: '轻度低落风险', riskLevel: '关注' },
+    { max: 14, level: '中度低落风险', riskLevel: '建议专业评估' },
+    { max: 19, level: '中重度低落风险', riskLevel: '建议专业评估' },
+    { max: 27, level: '重度低落风险', riskLevel: '建议专业评估' },
+  ];
+  const levels = type === 'depression' ? depressionLevels : anxietyLevels;
+  return levels.find((item) => total <= item.max) || levels[levels.length - 1];
+}
+
+export function scoreScreening(type, answers = []) {
+  const form = SCREENING_FORMS[type] || SCREENING_FORMS.anxiety;
+  const values = Array.from({ length: form.questions.length }, (_, index) => clamp(Math.round(Number(answers[index]) || 0), 0, 3));
+  const total = values.reduce((sum, value) => sum + value, 0);
+  const level = screeningLevel(type, total);
+  const crisis = type === 'depression' && values[8] >= 2;
+  const riskLevel = crisis ? '需要尽快求助' : level.riskLevel;
+  const recommendation = crisis
+    ? '筛查显示你近期出现较强自我伤害想法。请立即联系身边可信任的人、学校心理中心或当地紧急服务；不要独自承受。'
+    : riskLevel === '建议专业评估'
+      ? '筛查分数提示风险偏高，这不是诊断，但建议尽快预约学校心理中心、心理咨询师或医生做专业评估。'
+      : riskLevel === '关注'
+        ? '筛查分数提示需要关注。建议连续一周记录睡眠、压力和触发事件，并使用调节练习观察变化。'
+        : '当前筛查分数较低。继续保持记录，把有效的支持方式保存下来。';
+
+  return {
+    type: SCREENING_FORMS[type] ? type : 'anxiety',
+    total,
+    max: form.questions.length * 3,
+    level: crisis ? '危机风险提示' : level.level,
+    riskLevel,
+    recommendation,
+    answers: values,
+  };
+}
+
 export function scoreUxSurvey(answers) {
   const value = (key) => clamp(Number(answers?.[key]) || 0, 1, 5);
   const rawScores = [

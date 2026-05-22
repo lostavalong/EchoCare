@@ -1,4 +1,4 @@
-import { analyzeEntry } from "../src/analysis.js";
+import { analyzeEntry, buildMonthlyMentalReport } from "../src/analysis.js";
 
 const DEFAULT_BASE_URL = "https://api.deepseek.com";
 const DEFAULT_MODEL = "deepseek-v4-flash";
@@ -122,6 +122,74 @@ function buildPrompt({ text, preferenceProfile = {} }) {
   ].join("\n");
 }
 
+function safeList(value, maxItems = 5, maxLength = 80) {
+  if (!Array.isArray(value)) return [];
+  return value.map((item) => safeText(item, maxLength)).filter(Boolean).slice(0, maxItems);
+}
+
+function normalizeEntries(entries) {
+  return (Array.isArray(entries) ? entries : [])
+    .filter((entry) => entry && typeof entry === 'object')
+    .slice(0, 60);
+}
+
+function buildMonthlyPrompt({ entries, localReport }) {
+  const records = normalizeEntries(entries).slice(0, 30).map((entry, index) => {
+    const emotion = entry.emotion?.label || entry.emotion?.id || '未知';
+    const keywords = Array.isArray(entry.keywords) ? entry.keywords.join('、') : '无';
+    return String(index + 1) + '. ' + (entry.createdAt || 'unknown') + ' | 情绪:' + emotion + ' | 压力:' + (entry.stress ?? '未知') + ' | 主题:' + keywords + ' | 内容:' + safeText(entry.text, 260);
+  }).join('\n');
+
+  return [
+    '【任务】你是 EchoCare 的月度心理画像分析助手。请基于近 30 天情绪记录输出结构化 json。',
+    '【安全边界】不做诊断，不使用“确诊”“患有”等措辞；只能给出筛查提示、风险提示和建议专业评估。',
+    '【专业视角】综合心理动力学、认知行为、压力-睡眠循环、情绪调节、人本主义支持和大学生学习压力场景。',
+    '【本地初筛参考】' + JSON.stringify(localReport),
+    '【近 30 天记录】',
+    records || '暂无记录',
+    '【输出要求】只输出合法 JSON 对象，不要 Markdown。字段必须包含：',
+    '- riskLevel: 低 | 关注 | 建议专业评估 | 需要尽快求助。',
+    '- emotionPattern: 160-240 个中文字符，说明近 30 天模式，不做诊断。',
+    '- pressureSources: 2-5 个压力来源数组。',
+    '- maintainingFactors: 2-5 个维持因素数组，结合心理机制。',
+    '- protectiveFactors: 1-4 个保护性因素数组。',
+    '- recommendations: 3-5 个具体建议数组，必须可执行。',
+    '- screeningRecommended: boolean。',
+    '- screeningType: anxiety | depression | both | crisis | none。',
+    '- professionalHelpMessage: 80-160 个中文字符，说明这不是诊断，并在风险高时建议学校心理中心、心理咨询师或医生做专业评估。',
+    '如果出现自伤、伤人或极端绝望风险，riskLevel 必须是“需要尽快求助”，screeningType 必须是 crisis，并建议立即联系可信任的人、学校心理中心或当地紧急服务。',
+  ].join('\n');
+}
+
+function mergeMonthlyReport(localReport, ai) {
+  const riskLevels = ['低', '关注', '建议专业评估', '需要尽快求助'];
+  const screeningTypes = ['anxiety', 'depression', 'both', 'crisis', 'none'];
+  const riskLevel = riskLevels.includes(ai?.riskLevel) ? ai.riskLevel : localReport.riskLevel;
+  const screeningType = screeningTypes.includes(ai?.screeningType) ? ai.screeningType : localReport.screeningType;
+
+  return {
+    ...localReport,
+    riskLevel,
+    emotionPattern: safeText(ai?.emotionPattern, 360) || localReport.emotionPattern,
+    pressureSources: safeList(ai?.pressureSources, 5, 40).length ? safeList(ai?.pressureSources, 5, 40) : localReport.pressureSources,
+    maintainingFactors: safeList(ai?.maintainingFactors, 5, 90).length ? safeList(ai?.maintainingFactors, 5, 90) : localReport.maintainingFactors,
+    protectiveFactors: safeList(ai?.protectiveFactors, 4, 90).length ? safeList(ai?.protectiveFactors, 4, 90) : localReport.protectiveFactors,
+    recommendations: safeList(ai?.recommendations, 5, 100).length ? safeList(ai?.recommendations, 5, 100) : localReport.recommendations,
+    screeningRecommended: typeof ai?.screeningRecommended === 'boolean' ? ai.screeningRecommended : localReport.screeningRecommended,
+    screeningType,
+    professionalHelpMessage: safeText(ai?.professionalHelpMessage, 220) || localReport.professionalHelpMessage,
+    source: 'deepseek',
+  };
+}
+
+function localMonthlyResult(entries, reason) {
+  return {
+    source: 'local',
+    reason,
+    report: buildMonthlyMentalReport(entries),
+  };
+}
+
 function mergeAiFields(baseEntry, ai) {
   const emotionId = KNOWN_EMOTIONS[ai?.emotionId] ? ai.emotionId : baseEntry.emotion.id;
   const emotionMeta = KNOWN_EMOTIONS[emotionId] || baseEntry.emotion;
@@ -201,6 +269,46 @@ export function createAnalyzer(options = {}) {
         return localResult(text, preferenceProfile, "deepseek_error");
       }
     },
+
+    async analyzeMonthly({ entries = [] } = {}) {
+      const safeEntries = normalizeEntries(entries);
+      if (!apiKey || typeof fetchImpl !== 'function') {
+        return localMonthlyResult(safeEntries, 'missing_api_key');
+      }
+
+      const localReport = buildMonthlyMentalReport(safeEntries);
+      try {
+        const response = await fetchImpl(baseUrl + '/chat/completions', {
+          method: 'POST',
+          headers: {
+            Authorization: 'Bearer ' + apiKey,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model,
+            messages: [
+              { role: 'system', content: SYSTEM_PRESET },
+              { role: 'user', content: buildMonthlyPrompt({ entries: safeEntries, localReport }) },
+            ],
+            response_format: { type: 'json_object' },
+            thinking: { type: 'disabled' },
+            temperature: 0.45,
+            max_tokens: 1800,
+          }),
+        });
+
+        if (!response.ok) {
+          return localMonthlyResult(safeEntries, 'deepseek_http_' + response.status);
+        }
+
+        const payload = await response.json();
+        const content = payload?.choices?.[0]?.message?.content;
+        const ai = parseJsonContent(content);
+        return { source: 'deepseek', report: mergeMonthlyReport(localReport, ai) };
+      } catch (error) {
+        return localMonthlyResult(safeEntries, 'deepseek_error');
+      }
+    },
   };
 }
 
@@ -214,7 +322,7 @@ function jsonResponse(data, status = 200) {
 export function createApiHandler({ analyzer = createAnalyzer() } = {}) {
   return async function handleApi(request) {
     const url = new URL(request.url);
-    if (url.pathname !== "/api/analyze") return null;
+    if (!['/api/analyze', '/api/monthly-report'].includes(url.pathname)) return null;
 
     if (request.method !== "POST") {
       return jsonResponse({ error: "method_not_allowed" }, 405);
@@ -225,6 +333,12 @@ export function createApiHandler({ analyzer = createAnalyzer() } = {}) {
       body = await request.json();
     } catch {
       return jsonResponse({ error: "invalid_json" }, 400);
+    }
+
+    if (url.pathname === '/api/monthly-report') {
+      const entries = normalizeEntries(body && body.entries);
+      const result = await analyzer.analyzeMonthly({ entries });
+      return jsonResponse(result);
     }
 
     const text = safeText(body?.text, 4000);

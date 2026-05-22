@@ -5,7 +5,10 @@ import {
   analyzeEntry,
   buildMusicPreferenceProfile,
   buildReadingPreferenceProfile,
+  buildMonthlyMentalReport,
   getWeeklySummary,
+  scoreScreening,
+  selectRegulationKnowledge,
   scoreUxSurvey,
 } from '../src/analysis.js';
 
@@ -96,6 +99,68 @@ test('getWeeklySummary summarizes dominant emotion, average stress, and top keyw
   assert.ok(summary.averageStress >= 55);
   assert.ok(summary.topKeywords.includes('学习任务'));
   assert.ok(summary.narrative.includes('本周'));
+});
+
+test('buildMonthlyMentalReport flags sustained anxiety as screening need without diagnosing', () => {
+  const now = new Date('2026-05-22T12:00:00.000Z');
+  const entries = [
+    analyzeEntry('最近作业和展示很多，我很焦虑，晚上睡不好，担心自己来不及。'),
+    analyzeEntry('考试临近，压力很大，脑子里一直在想失败怎么办。'),
+    analyzeEntry('又熬夜了，心里很慌，明天还有论文和展示。'),
+    analyzeEntry('今天散步以后平静了一些。'),
+  ].map((entry, index) => ({
+    ...entry,
+    createdAt: new Date(now.getTime() - index * 5 * 24 * 60 * 60 * 1000).toISOString(),
+  }));
+
+  const report = buildMonthlyMentalReport(entries, { now });
+
+  assert.equal(report.total, 4);
+  assert.equal(report.riskLevel, '建议专业评估');
+  assert.equal(report.screeningRecommended, true);
+  assert.equal(report.screeningType, 'anxiety');
+  assert.ok(report.emotionPattern.includes('焦虑'));
+  assert.ok(report.maintainingFactors.some((item) => item.includes('睡眠') || item.includes('任务')));
+  assert.ok(report.professionalHelpMessage.includes('筛查'));
+  assert.doesNotMatch(report.professionalHelpMessage, /确诊|诊断为/);
+});
+
+test('buildMonthlyMentalReport treats crisis language as urgent support need', () => {
+  const entry = analyzeEntry('我真的撑不住了，有时会想伤害自己，不想活了。');
+  const report = buildMonthlyMentalReport([entry], { now: new Date(entry.createdAt) });
+
+  assert.equal(report.riskLevel, '需要尽快求助');
+  assert.equal(report.screeningRecommended, true);
+  assert.equal(report.screeningType, 'crisis');
+  assert.ok(report.professionalHelpMessage.includes('立即'));
+});
+
+test('selectRegulationKnowledge returns practical psychology cards matched to risk and emotion', () => {
+  const report = buildMonthlyMentalReport([
+    analyzeEntry('任务太多了，我焦虑到睡不好，担心自己失败。'),
+    analyzeEntry('ddl 快到了，我一直在拖延又很慌。'),
+  ]);
+
+  const cards = selectRegulationKnowledge({ emotionId: 'anxious', keywords: ['学习任务', '睡眠'], report });
+
+  assert.ok(cards.length >= 3);
+  assert.ok(cards.some((card) => card.id === 'anxiety-loop'));
+  assert.ok(cards.some((card) => card.id === 'task-splitting'));
+  assert.ok(cards.every((card) => card.title && card.principle && card.practice.length === 3));
+});
+
+test('scoreScreening scores anxiety and depression screeners with risk guidance', () => {
+  const anxiety = scoreScreening('anxiety', [3, 2, 2, 2, 2, 2, 2]);
+  const depression = scoreScreening('depression', [2, 2, 2, 2, 2, 1, 1, 1, 0]);
+  const crisis = scoreScreening('depression', [1, 1, 1, 1, 1, 1, 1, 1, 2]);
+
+  assert.equal(anxiety.total, 15);
+  assert.equal(anxiety.level, '重度焦虑风险');
+  assert.ok(anxiety.recommendation.includes('专业评估'));
+  assert.equal(depression.total, 13);
+  assert.equal(depression.level, '中度低落风险');
+  assert.equal(crisis.riskLevel, '需要尽快求助');
+  assert.ok(crisis.recommendation.includes('立即'));
 });
 
 test('scoreUxSurvey returns section averages and an overall score', () => {

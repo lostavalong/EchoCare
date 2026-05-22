@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { createAnalyzer, createApiHandler } from '../server/deepseek.js';
+import { analyzeEntry as analyzeEntryForServer } from '../src/analysis.js';
 
 test('createAnalyzer falls back to local analysis when no API key is configured', async () => {
   const analyzer = createAnalyzer({ apiKey: '' });
@@ -49,6 +50,68 @@ test('createAnalyzer calls DeepSeek-compatible endpoint and merges safe AI field
   assert.equal(requests[0].options.method, 'POST');
   assert.equal(requests[0].options.headers.Authorization, 'Bearer test-key');
   assert.equal(JSON.parse(requests[0].options.body).response_format.type, 'json_object');
+});
+
+test('createAnalyzer falls back to local monthly report when no API key is configured', async () => {
+  const analyzer = createAnalyzer({ apiKey: '' });
+  const entry = analyzeEntryForServer('最近作业很多，我很焦虑，睡不好。');
+
+  const result = await analyzer.analyzeMonthly({ entries: [entry] });
+
+  assert.equal(result.source, 'local');
+  assert.equal(result.report.dominantEmotion.id, 'anxious');
+  assert.ok(result.report.professionalHelpMessage.includes('筛查'));
+});
+
+test('createAnalyzer calls DeepSeek-compatible endpoint for monthly report and keeps safety boundaries', async () => {
+  let body;
+  const fakeFetch = async (url, options) => {
+    body = JSON.parse(options.body);
+    return new Response(JSON.stringify({
+      choices: [{
+        message: {
+          content: JSON.stringify({
+            riskLevel: '建议专业评估',
+            emotionPattern: '近一个月焦虑和睡眠压力反复出现。',
+            pressureSources: ['学习任务'],
+            maintainingFactors: ['睡眠不足放大担心'],
+            protectiveFactors: ['愿意记录情绪'],
+            recommendations: ['把任务拆成 20 分钟以内的小步'],
+            screeningRecommended: true,
+            screeningType: 'anxiety',
+            professionalHelpMessage: '这不是诊断。筛查结果若持续偏高，建议预约学校心理中心或专业人员评估。',
+          }),
+        },
+      }],
+    }), { status: 200, headers: { 'content-type': 'application/json' } });
+  };
+  const analyzer = createAnalyzer({ apiKey: 'test-key', fetchImpl: fakeFetch, model: 'deepseek-chat' });
+
+  const result = await analyzer.analyzeMonthly({ entries: [analyzeEntryForServer('作业很多，我焦虑到睡不好。')] });
+
+  assert.equal(result.source, 'deepseek');
+  assert.equal(result.report.riskLevel, '建议专业评估');
+  assert.equal(result.report.screeningType, 'anxiety');
+  assert.match(body.messages[0].content, /不做诊断/);
+  assert.match(body.messages[1].content, /近 30 天/);
+  assert.match(body.messages[1].content, /screeningRecommended/);
+  assert.ok(body.max_tokens >= 1600);
+});
+
+test('createApiHandler returns JSON for POST /api/monthly-report', async () => {
+  const handler = createApiHandler({
+    analyzer: {
+      analyzeMonthly: async () => ({ source: 'local', report: { riskLevel: '低', total: 1 } }),
+    },
+  });
+  const response = await handler(new Request('http://localhost/api/monthly-report', {
+    method: 'POST',
+    body: JSON.stringify({ entries: [{ text: '今天还算平静。' }] }),
+    headers: { 'content-type': 'application/json' },
+  }));
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { source: 'local', report: { riskLevel: '低', total: 1 } });
 });
 
 test('createApiHandler returns JSON for POST /api/analyze', async () => {

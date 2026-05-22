@@ -39,6 +39,7 @@
           <button class="tab" type="button" data-view="insight">分析</button>
           <button class="tab" type="button" data-view="recommend">推荐</button>
           <button class="tab" type="button" data-view="favorites">收藏</button>
+          <button class="tab" type="button" data-view="regulation">调节</button>
           <button class="tab" type="button" data-view="trends">趋势</button>
           <button class="tab" type="button" data-view="survey">测量</button>
         </nav>
@@ -72,6 +73,23 @@
           </div>
 
           <button class="primary-action" type="button" data-view-target="record">开始语音记录</button>
+
+          <section class="monthly-panel" id="monthlyPanel">
+            <div class="section-heading">
+              <div>
+                <p class="soft-label">30-Day Care Profile</p>
+                <h3>近 30 天心理画像</h3>
+              </div>
+              <span class="risk-badge" id="monthlyRisk">低</span>
+            </div>
+            <p class="monthly-pattern" id="monthlyPattern">完成几次记录后，这里会生成近 30 天情绪模式与调节建议。</p>
+            <div class="monthly-columns" id="monthlyColumns"></div>
+            <div class="monthly-actions">
+              <button class="secondary-action" type="button" id="generateMonthlyReport">生成 30 天专业分析</button>
+              <span class="status-pill" id="monthlySource">本地规则</span>
+            </div>
+            <div class="screening-callout" id="screeningCallout" hidden></div>
+          </section>
 
           <section class="content-block">
             <div class="section-heading">
@@ -215,6 +233,25 @@
             </div>
             <div id="favoriteBooks" class="favorite-list"></div>
           </article>
+        </section>
+
+        <section class="view" id="regulation" aria-labelledby="regulationTitle">
+          <div class="section-heading compact">
+            <div>
+              <p class="soft-label">Psychology Toolkit</p>
+              <h2 id="regulationTitle">心理调节</h2>
+            </div>
+          </div>
+
+          <article class="regulation-hero">
+            <span>匹配当前状态</span>
+            <strong id="regulationFocus">等待记录</strong>
+            <p id="regulationIntro">这里会根据最近记录和近 30 天画像推荐更贴近你的心理学调节知识。</p>
+          </article>
+
+          <div class="knowledge-grid" id="knowledgeCards"></div>
+
+          <article class="screening-panel" id="screeningPanel" hidden></article>
         </section>
 
         <section class="view" id="trends" aria-labelledby="trendsTitle">
