@@ -2483,8 +2483,8 @@ body[data-theme='night'] .hero-brand-glow {
 .topbar {
   position: relative;
   align-items: flex-start;
-  min-height: 126px;
-  padding: 22px 18px 14px 20px;
+  min-height: 140px;
+  padding: 22px 18px 16px 20px;
 }
 
 .top-actions {
@@ -2496,34 +2496,33 @@ body[data-theme='night'] .hero-brand-glow {
 
 .brand-lockup {
   width: 100%;
-  min-height: 98px;
-  grid-template-columns: 96px minmax(0, 1fr);
-  gap: 14px;
-  padding-right: 104px;
+  min-height: 118px;
+  grid-template-columns: 138px minmax(0, 1fr);
+  gap: 6px;
+  padding-right: 92px;
 }
 
 .brand-mark {
-  width: 96px;
-  height: 96px;
-  border-radius: 28px;
-  background:
-    radial-gradient(circle at 34% 18%, rgba(255,255,255,0.96), rgba(255,255,255,0.68) 40%, rgba(237,249,242,0.44)),
-    linear-gradient(145deg, rgba(104,199,165,0.22), rgba(106,148,216,0.18));
-  box-shadow:
-    0 20px 42px rgba(39, 91, 86, 0.20),
-    inset 0 1px 0 rgba(255,255,255,0.86);
+  width: 138px;
+  height: 118px;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .brand-mark::after {
-  inset: 9px;
-  border-radius: 21px;
+  content: none;
 }
 
 .brand-mark img {
-  width: 88%;
-  height: 88%;
+  width: 138%;
+  height: 138%;
   object-fit: contain;
-  transform: none;
+  object-position: center;
+  filter: drop-shadow(0 18px 28px rgba(38, 136, 117, 0.15));
+  transform: translateX(-4px);
 }
 
 .brand-copy {
@@ -2545,9 +2544,9 @@ body[data-theme='night'] .hero-brand-glow {
 }
 
 body[data-theme='night'] .brand-mark {
-  background:
-    radial-gradient(circle at 34% 18%, rgba(255,255,255,0.18), rgba(94,208,178,0.12) 42%, rgba(15,23,31,0.84)),
-    linear-gradient(145deg, rgba(94,208,178,0.18), rgba(123,165,234,0.14));
+  background: transparent;
+  border: 0;
+  box-shadow: none;
 }
 
 body[data-theme='night'] .brand-wordmark {
@@ -2556,8 +2555,8 @@ body[data-theme='night'] .brand-wordmark {
 
 @media (max-width: 390px) {
   .topbar {
-    min-height: 116px;
-    padding: 20px 14px 12px;
+    min-height: 128px;
+    padding: 20px 14px 14px;
   }
 
   .top-actions {
@@ -2566,16 +2565,18 @@ body[data-theme='night'] .brand-wordmark {
   }
 
   .brand-lockup {
-    grid-template-columns: 82px minmax(0, 1fr);
-    gap: 10px;
-    padding-right: 92px;
-    min-height: 88px;
+    grid-template-columns: 112px minmax(0, 1fr);
+    gap: 4px;
+    padding-right: 86px;
+    min-height: 104px;
   }
 
   .brand-mark {
-    width: 82px;
-    height: 82px;
-    border-radius: 24px;
+    width: 112px;
+    height: 104px;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
   }
 
   .brand-copy {
