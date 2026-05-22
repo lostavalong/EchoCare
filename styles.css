@@ -2421,6 +2421,19 @@ body[data-theme='night'] .screen-option {
   z-index: 1;
 }
 
+.top-actions .theme-toggle {
+  min-width: 50px;
+  height: 38px;
+  border-radius: 13px;
+  font-size: 12px;
+}
+
+.top-actions .icon-button {
+  width: 38px;
+  height: 38px;
+  border-radius: 13px;
+}
+
 body[data-theme='night'] .brand-mark {
   background:
     radial-gradient(circle at 35% 20%, rgba(255,255,255,0.16), rgba(94,208,178,0.10) 44%, rgba(15,23,31,0.80)),
@@ -2438,7 +2451,7 @@ body[data-theme='night'] .hero-brand-glow {
   filter: brightness(1.08) drop-shadow(0 8px 16px rgba(94,208,178,0.10));
 }
 
- (max-width: 390px) {
+@media (max-width: 390px) {
   .topbar {
     gap: 10px;
   }
@@ -2462,5 +2475,116 @@ body[data-theme='night'] .hero-brand-glow {
   .brand-copy p {
     font-size: 10px;
     letter-spacing: 0.04em;
+  }
+}
+
+
+/* Brand prominence refinement */
+.topbar {
+  position: relative;
+  align-items: flex-start;
+  min-height: 126px;
+  padding: 22px 18px 14px 20px;
+}
+
+.top-actions {
+  position: absolute;
+  top: 20px;
+  right: 18px;
+  z-index: 3;
+}
+
+.brand-lockup {
+  width: 100%;
+  min-height: 94px;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 14px;
+  padding-right: 104px;
+}
+
+.brand-mark {
+  width: 92px;
+  height: 92px;
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 34% 18%, rgba(255,255,255,0.96), rgba(255,255,255,0.68) 40%, rgba(237,249,242,0.44)),
+    linear-gradient(145deg, rgba(104,199,165,0.22), rgba(106,148,216,0.18));
+  box-shadow:
+    0 20px 42px rgba(39, 91, 86, 0.20),
+    inset 0 1px 0 rgba(255,255,255,0.86);
+}
+
+.brand-mark::after {
+  inset: 9px;
+  border-radius: 21px;
+}
+
+.brand-mark img {
+  width: 196%;
+  height: 196%;
+  object-fit: cover;
+  transform: scale(1.06);
+}
+
+.brand-copy {
+  align-self: center;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  overflow: visible;
+}
+
+.brand-wordmark {
+  width: min(198px, calc(100vw - 196px));
+  height: 108px;
+  object-fit: contain;
+  object-position: left center;
+  transform: translateX(-7px) scale(1.16);
+  transform-origin: left center;
+  filter: drop-shadow(0 12px 22px rgba(38, 136, 117, 0.10));
+}
+
+body[data-theme='night'] .brand-mark {
+  background:
+    radial-gradient(circle at 34% 18%, rgba(255,255,255,0.18), rgba(94,208,178,0.12) 42%, rgba(15,23,31,0.84)),
+    linear-gradient(145deg, rgba(94,208,178,0.18), rgba(123,165,234,0.14));
+}
+
+body[data-theme='night'] .brand-wordmark {
+  filter: brightness(1.12) drop-shadow(0 12px 22px rgba(94,208,178,0.12));
+}
+
+@media (max-width: 390px) {
+  .topbar {
+    min-height: 116px;
+    padding: 20px 14px 12px;
+  }
+
+  .top-actions {
+    top: 18px;
+    right: 14px;
+  }
+
+  .brand-lockup {
+    grid-template-columns: 78px minmax(0, 1fr);
+    gap: 10px;
+    padding-right: 92px;
+    min-height: 84px;
+  }
+
+  .brand-mark {
+    width: 78px;
+    height: 78px;
+    border-radius: 24px;
+  }
+
+  .brand-copy {
+    height: 86px;
+  }
+
+  .brand-wordmark {
+    width: min(174px, calc(100vw - 174px));
+    height: 95px;
+    transform: translateX(-6px) scale(1.12);
   }
 }
