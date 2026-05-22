@@ -2331,3 +2331,136 @@ body[data-theme='night'] .screen-option {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* Brand asset integration */
+.brand-lockup {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 60px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-mark {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 21px;
+  background:
+    radial-gradient(circle at 35% 20%, rgba(255,255,255,0.94), rgba(255,255,255,0.58) 42%, rgba(237,249,242,0.50)),
+    linear-gradient(145deg, rgba(104,199,165,0.18), rgba(106,148,216,0.16));
+  border: 1px solid rgba(255,255,255,0.86);
+  box-shadow: 0 14px 32px rgba(39, 91, 86, 0.16);
+}
+
+.brand-mark::after {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  border-radius: 16px;
+  border: 1px solid rgba(38, 136, 117, 0.10);
+  pointer-events: none;
+}
+
+.brand-mark img {
+  width: 142%;
+  height: 142%;
+  object-fit: contain;
+  object-position: center;
+  filter: drop-shadow(0 8px 14px rgba(38, 136, 117, 0.12));
+}
+
+.brand-copy {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  align-content: center;
+}
+
+.brand-wordmark {
+  display: block;
+  width: min(168px, 42vw);
+  height: 43px;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.brand-copy p {
+  margin: -5px 0 0 2px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 1.25;
+  letter-spacing: 0.08em;
+}
+
+.hero-copy {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-brand-glow {
+  position: absolute;
+  right: 62px;
+  bottom: -30px;
+  width: 210px;
+  height: 116px;
+  object-fit: contain;
+  opacity: 0.105;
+  filter: blur(0.2px) saturate(0.92);
+  pointer-events: none;
+  transform: rotate(-4deg);
+}
+
+.hero-panel .mood-orbit {
+  position: relative;
+  z-index: 1;
+}
+
+body[data-theme='night'] .brand-mark {
+  background:
+    radial-gradient(circle at 35% 20%, rgba(255,255,255,0.16), rgba(94,208,178,0.10) 44%, rgba(15,23,31,0.80)),
+    linear-gradient(145deg, rgba(94,208,178,0.16), rgba(123,165,234,0.12));
+  border-color: rgba(255,255,255,0.12);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.24);
+}
+
+body[data-theme='night'] .brand-copy p {
+  color: #b8c8c4;
+}
+
+body[data-theme='night'] .brand-wordmark,
+body[data-theme='night'] .hero-brand-glow {
+  filter: brightness(1.08) drop-shadow(0 8px 16px rgba(94,208,178,0.10));
+}
+
+ (max-width: 390px) {
+  .topbar {
+    gap: 10px;
+  }
+
+  .brand-lockup {
+    grid-template-columns: 52px minmax(0, 1fr);
+    gap: 9px;
+  }
+
+  .brand-mark {
+    width: 52px;
+    height: 52px;
+    border-radius: 18px;
+  }
+
+  .brand-wordmark {
+    width: min(138px, 40vw);
+    height: 36px;
+  }
+
+  .brand-copy p {
+    font-size: 10px;
+    letter-spacing: 0.04em;
+  }
+}

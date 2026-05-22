@@ -1,4 +1,4 @@
-const CACHE_NAME = 'echocare-v9';
+const CACHE_NAME = 'echocare-v10';
 const ASSETS = [
   './',
   './index.html',
@@ -7,6 +7,8 @@ const ASSETS = [
   './src/analysis.js',
   './manifest.webmanifest',
   './icon.svg',
+  './assets/brand/echocare-logo.png',
+  './assets/brand/echocare-wordmark.png',
 ];
 
 self.addEventListener('install', (event) => {
