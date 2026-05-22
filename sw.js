@@ -1,4 +1,4 @@
-const CACHE_NAME = 'echocare-v11';
+const CACHE_NAME = 'echocare-v12';
 const ASSETS = [
   './',
   './index.html',
