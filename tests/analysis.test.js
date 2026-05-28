@@ -74,6 +74,38 @@ test('music profile uses weighted aggregate instead of only the latest favorite'
   assert.ok(profile.narrative.includes('综合色彩'));
 });
 
+test('recommendations exclude favorite songs from the active playlist', () => {
+  const favorites = [
+    { id: 'anxious-kind-of-blue', title: 'Blue in Green', genre: '爵士', mood: '松弛', emotionId: 'anxious' },
+    { id: 'anxious-clair-de-lune', title: 'Clair de Lune', genre: '古典', mood: '月光感', emotionId: 'anxious' },
+    { id: 'anxious-weightless', title: 'Weightless', genre: '氛围', mood: '舒缓', emotionId: 'anxious' },
+    { id: 'anxious-bloom', title: 'Bloom', genre: '民谣', mood: '温柔', emotionId: 'anxious' },
+    { id: 'anxious-yellow', title: 'Yellow', genre: '流行', mood: '陪伴', emotionId: 'anxious' },
+    { id: 'anxious-night-sky', title: '夜空中最亮的星', genre: '华语流行', mood: '向前', emotionId: 'anxious' },
+    { id: 'anxious-gymnopedie', title: 'Gymnopedie No.1', genre: '古典', mood: '极简', emotionId: 'anxious' },
+  ];
+  const profile = buildMusicPreferenceProfile(favorites);
+  const favoriteIds = new Set(favorites.map((song) => song.id));
+
+  const result = analyzeEntry('我很焦虑，担心明天展示，压力很大。', profile);
+
+  assert.ok(result.playlist.length >= 6);
+  assert.ok(result.playlist.every((song) => !favoriteIds.has(song.id)));
+});
+
+test('recently recommended songs are downranked to reduce repeated playlists', () => {
+  const baseline = analyzeEntry('我很焦虑，担心明天展示，压力很大。');
+  const recentSongIds = baseline.playlist.slice(0, 5).map((song) => song.id);
+
+  const result = analyzeEntry('我很焦虑，担心明天展示，压力很大。', {
+    ...buildMusicPreferenceProfile([]),
+    recentSongIds,
+  });
+
+  assert.ok(!recentSongIds.includes(result.playlist[0].id));
+  assert.ok(result.playlist.slice(0, 5).some((song) => !recentSongIds.includes(song.id)));
+});
+
 test('reading favorites build a reflective profile', () => {
   const profile = buildReadingPreferenceProfile([
     { title: '瓦尔登湖', emotionId: 'calm', theme: '独处与平静' },

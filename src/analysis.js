@@ -59,6 +59,12 @@ const PLAYLISTS = {
     song('anxious-yellow', 'Yellow', 'Coldplay', '流行', '陪伴', 42, '明亮但不过分兴奋，适合在压力里保留一点支持感。'),
     song('anxious-night-sky', '夜空中最亮的星', '逃跑计划', '华语流行', '向前', 48, '在焦虑中补充一点行动感和希望感。'),
     song('anxious-gymnopedie', 'Gymnopedie No.1', 'Erik Satie', '古典', '极简', 14, '重复而克制的旋律适合把脑内杂音降下来。'),
+    song('anxious-spiegel', 'Spiegel im Spiegel', 'Arvo Part', '古典', '澄明', 10, '极慢的钢琴与小提琴适合在焦虑时拉长呼吸。'),
+    song('anxious-sentimental', 'In a Sentimental Mood', 'Duke Ellington & John Coltrane', '爵士', '松弛', 22, '温柔的萨克斯线条能把紧绷感慢慢软化。'),
+    song('anxious-kiss-rain', 'Kiss the Rain', 'Yiruma', '轻音乐', '安定', 18, '旋律清晰而平稳，适合把注意力放回当下。'),
+    song('anxious-re-stacks', 'Re: Stacks', 'Bon Iver', '民谣', '低声陪伴', 20, '低声木吉他适合承接不安，不会制造额外刺激。'),
+    song('anxious-somewhere', 'Somewhere Only We Know', 'Keane', '流行', '陪伴', 44, '熟悉的旋律能在压力里提供一点可依靠的温度。'),
+    song('anxious-south-mountain', '南山南', '马頔', '华语民谣', '缓慢', 28, '缓慢叙事感适合把焦虑从脑内拉回生活场景。'),
   ],
   sad: [
     song('sad-autumn-leaves', 'Autumn Leaves', 'Cannonball Adderley', '爵士', '陪伴', 28, '温暖的爵士线条适合承接低落，而不是强行振奋。'),
@@ -68,6 +74,12 @@ const PLAYLISTS = {
     song('sad-lucky', '小幸运', '田馥甄', '华语流行', '温暖', 45, '旋律熟悉而柔软，适合把注意力转向被珍惜的关系。'),
     song('sad-ordinary-day', '平凡的一天', '毛不易', '华语民谣', '生活感', 36, '把情绪放回普通日常，减少“只有我这样”的孤立感。'),
     song('sad-misty', 'Misty', 'Erroll Garner', '爵士', '柔和', 24, '钢琴爵士的朦胧质感适合慢慢消化委屈。'),
+    song('sad-river', 'River', 'Joni Mitchell', '民谣', '倾诉', 26, '像一段低声倾诉，适合允许悲伤被听见。'),
+    song('sad-hallelujah', 'Hallelujah', 'Jeff Buckley', '流行', '安慰', 32, '克制而深情的人声适合承接失落。'),
+    song('sad-nocturne', 'Nocturne Op.9 No.2', 'Frederic Chopin', '古典', '柔软', 18, '夜曲的流动感适合把委屈慢慢放下。'),
+    song('sad-my-funny-valentine', 'My Funny Valentine', 'Chet Baker', '爵士', '陪伴', 22, '轻柔小号和人声能提供不打扰的陪伴。'),
+    song('sad-sunflower', '向日葵', '谢春花', '华语民谣', '温柔', 34, '温柔叙事能把低落转向一点点向光感。'),
+    song('sad-sparks', 'Sparks', 'Coldplay', '独立流行', '安静', 24, '短小柔和，适合情绪很低时轻轻托住自己。'),
   ],
   tired: [
     song('tired-nuvole', 'Nuvole Bianche', 'Ludovico Einaudi', '古典', '睡前', 15, '节奏舒展，适合休息前缓慢沉静下来。'),
@@ -77,6 +89,12 @@ const PLAYLISTS = {
     song('tired-goodnight', '晚安', '颜人中', '华语流行', '睡前', 35, '直接回应疲惫时对休息的需要。'),
     song('tired-moon-river', 'Moon River', 'Audrey Hepburn', '经典流行', '安静', 18, '旋律轻柔，适合把一天温和收束。'),
     song('tired-pavane', 'Pavane pour une infante defunte', 'Maurice Ravel', '古典', '缓慢', 12, '慢速管弦乐能帮助身体进入低唤醒状态。'),
+    song('tired-sleep', 'Sleep', 'Max Richter', '古典', '深休息', 8, '极低唤醒的长线条适合把身体交还给休息。'),
+    song('tired-teardrop', 'Teardrop', 'Massive Attack', '电子', '缓慢恢复', 32, '稳定低频适合疲惫时慢慢恢复节奏。'),
+    song('tired-fields-gold', 'Fields of Gold', 'Eva Cassidy', '民谣', '轻柔', 26, '温和人声适合降低疲惫后的敏感感。'),
+    song('tired-autumn-whispers', 'Autumn Whispers', 'Yiruma', '轻音乐', '睡前', 16, '钢琴线条柔和，适合短暂休息或睡前。'),
+    song('tired-fly-me', 'Fly Me to the Moon', 'Julie London', '爵士', '慵懒', 30, '松弛人声让疲惫状态有一点轻盈。'),
+    song('tired-ordinary-road', '平凡之路', '朴树', '华语流行', '恢复', 42, '稳定推进的旋律适合从耗竭里慢慢找回方向。'),
   ],
   happy: [
     song('happy-sun', 'Here Comes the Sun', 'The Beatles', '流行', '明亮', 58, '明亮旋律适合延续积极状态。'),
@@ -86,6 +104,12 @@ const PLAYLISTS = {
     song('happy-best-day', 'Best Day of My Life', 'American Authors', '流行摇滚', '活力', 66, '强化完成感和正向记忆。'),
     song('happy-new-soul', 'New Soul', 'Yael Naim', '独立流行', '清新', 54, '轻盈俏皮，适合愉快散步场景。'),
     song('happy-l-o-v-e', 'L-O-V-E', 'Nat King Cole', '爵士', '甜暖', 45, '温暖人声适合把喜悦分享给别人。'),
+    song('happy-september', 'September', 'Earth, Wind & Fire', '放克流行', '明亮', 70, '节奏明亮，适合把好心情转成行动感。'),
+    song('happy-island-sun', 'Island in the Sun', 'Weezer', '独立摇滚', '轻快', 56, '轻松吉他适合散步和分享快乐。'),
+    song('happy-minuet', 'Minuet in G Major', 'Christian Petzold', '古典', '清新', 38, '短小明亮，适合保存轻盈的完成感。'),
+    song('happy-cheek', 'Cheek to Cheek', 'Ella Fitzgerald & Louis Armstrong', '爵士', '甜暖', 48, '两种人声的对话感适合放大关系中的愉快。'),
+    song('happy-summer', '夏天的风', '温岚', '华语流行', '明亮', 55, '清爽旋律适合延续轻松和愉悦。'),
+    song('happy-home', 'Home', 'Edward Sharpe & The Magnetic Zeros', '民谣', '陪伴', 58, '合唱感强，适合把快乐和归属感连在一起。'),
   ],
   calm: [
     song('calm-comptine', 'Comptine d’un autre ete', 'Yann Tiersen', '古典', '钢琴', 20, '保持平静，同时给情绪一点细腻出口。'),
@@ -95,6 +119,12 @@ const PLAYLISTS = {
     song('calm-banana', 'Banana Pancakes', 'Jack Johnson', '民谣', '日常', 30, '轻松、日常，适合保持稳定心情。'),
     song('calm-air', 'Air on the G String', 'J. S. Bach', '古典', '安定', 14, '舒缓弦乐能帮助维持稳定节奏。'),
     song('calm-dream', 'Dream a Little Dream of Me', 'Ella Fitzgerald', '爵士', '柔软', 26, '温柔人声适合睡前或独处片刻。'),
+    song('calm-hoppipolla', 'Hoppipolla', 'Sigur Ros', '后摇', '开阔', 38, '温柔铺陈适合把平静延伸成开阔感。'),
+    song('calm-first-day', 'First Day of My Life', 'Bright Eyes', '民谣', '日常', 30, '简单真诚，适合安静记录生活里的稳定感。'),
+    song('calm-blue-monk', 'Blue Monk', 'Thelonious Monk', '爵士', '温和', 32, '轻松摇摆能让平静多一点松弛的弹性。'),
+    song('calm-una-mattina', 'Una Mattina', 'Ludovico Einaudi', '轻音乐', '钢琴', 18, '重复钢琴线条适合维持稳定注意力。'),
+    song('calm-green-sleeves', 'Greensleeves', 'Traditional', '古典', '安定', 20, '熟悉旋律带来安定感，适合慢速回顾。'),
+    song('calm-cloudy', '阴天快乐', '陈奕迅', '华语流行', '温和', 40, '温和流行旋律适合平静中带一点情绪流动。'),
   ],
 };
 
@@ -162,6 +192,7 @@ const BOOKS = {
 };
 
 const DEFAULT_EMOTION = EMOTIONS.find((emotion) => emotion.id === 'calm');
+const PLAYLIST_SIZE = 7;
 
 function song(id, title, artist, genre, mood, energy, reason) {
   return { id, title, artist, genre, mood, energy, reason };
@@ -240,28 +271,54 @@ function increment(map, key, by = 1) {
   map[key] = (map[key] || 0) + by;
 }
 
+function uniqueIds(values = []) {
+  if (!Array.isArray(values)) return [];
+  return [...new Set(values.map((value) => String(value || '').trim()).filter(Boolean))];
+}
+
+function stableJitter(id) {
+  return String(id || '').split('').reduce((sum, char) => sum + char.charCodeAt(0), 0) % 17;
+}
+
+function recentPenaltyMap(recentSongIds = []) {
+  const penalties = new Map();
+  uniqueIds(recentSongIds).forEach((id, index) => {
+    if (index < 7) penalties.set(id, 90);
+    else if (index < 14) penalties.set(id, 56);
+    else penalties.set(id, 28);
+  });
+  return penalties;
+}
+
 function rankPlaylistForProfile(playlist, profile, emotionId) {
   const genreCounts = profile.genreCounts || {};
   const moodCounts = profile.moodCounts || {};
   const emotionGenreCounts = (profile.emotionGenreCounts || {})[emotionId] || {};
   const topGenre = profile.topGenre;
+  const recentPenalties = recentPenaltyMap(profile.recentSongIds);
 
   return [...playlist]
     .map((item, index) => {
-      let score = 100 - index;
+      let score = 100 - index * 2;
       score += (genreCounts[item.genre] || 0) * 8;
       score += (moodCounts[item.mood] || 0) * 4;
       score += (emotionGenreCounts[item.genre] || 0) * 12;
       if (item.genre === topGenre) score += 10;
-      return { item, score };
+      score -= recentPenalties.get(item.id) || 0;
+      score += stableJitter(item.id) * 0.03;
+      return { item, score, index };
     })
-    .sort((a, b) => b.score - a.score)
+    .sort((a, b) => b.score - a.score || a.index - b.index)
     .map((ranked) => ranked.item);
 }
 
-function playlistFor(emotionId, profile) {
+function playlistFor(emotionId, profile = {}) {
   const base = PLAYLISTS[emotionId].map((item) => ({ ...item, emotionId }));
-  return profile && profile.favoriteCount ? rankPlaylistForProfile(base, profile, emotionId) : base;
+  const favoriteSongIds = new Set(uniqueIds(profile.favoriteSongIds));
+  const available = base.filter((item) => !favoriteSongIds.has(item.id));
+  const shouldRank = Boolean(profile.favoriteCount || uniqueIds(profile.recentSongIds).length);
+  const ranked = shouldRank ? rankPlaylistForProfile(available, profile, emotionId) : available;
+  return ranked.slice(0, PLAYLIST_SIZE);
 }
 
 export function buildMusicPreferenceProfile(favorites = []) {
@@ -270,6 +327,7 @@ export function buildMusicPreferenceProfile(favorites = []) {
   const moodCounts = {};
   const emotionCounts = {};
   const emotionGenreCounts = {};
+  const favoriteSongIds = uniqueIds(safeFavorites.map((favorite) => favorite.id));
   const now = Date.now();
 
   for (const [index, favorite] of safeFavorites.entries()) {
@@ -305,6 +363,7 @@ export function buildMusicPreferenceProfile(favorites = []) {
     moodCounts,
     emotionCounts,
     emotionGenreCounts,
+    favoriteSongIds,
     topGenre,
     topMood,
     topEmotion,

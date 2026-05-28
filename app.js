@@ -14,6 +14,8 @@ const STORAGE_KEY = 'echocare.entries.v1';
 const SURVEY_KEY = 'echocare.survey.v1';
 const MUSIC_FAVORITES_KEY = 'echocare.musicFavorites.v1';
 const BOOK_FAVORITES_KEY = 'echocare.bookFavorites.v1';
+const RECENT_SONGS_KEY = 'echocare.recentSongIds.v1';
+const RECENT_SONG_LIMIT = 28;
 const THEME_KEY = 'echocare.theme.v1';
 const MONTHLY_REPORT_KEY = 'echocare.monthlyReport.v1';
 const SCREENING_RESULTS_KEY = 'echocare.screeningResults.v1';
@@ -36,6 +38,7 @@ const state = {
   entries: loadJson(STORAGE_KEY, []),
   musicFavorites: loadJson(MUSIC_FAVORITES_KEY, []),
   bookFavorites: loadJson(BOOK_FAVORITES_KEY, []),
+  recentSongIds: loadJson(RECENT_SONGS_KEY, []),
   monthlyReport: loadJson(MONTHLY_REPORT_KEY, null),
   screeningResults: loadJson(SCREENING_RESULTS_KEY, {}),
   currentEntry: null,
@@ -71,6 +74,10 @@ function saveBookFavorites() {
   saveJson(BOOK_FAVORITES_KEY, state.bookFavorites);
 }
 
+function saveRecentSongIds() {
+  saveJson(RECENT_SONGS_KEY, state.recentSongIds);
+}
+
 function saveMonthlyReport() {
   saveJson(MONTHLY_REPORT_KEY, state.monthlyReport);
 }
@@ -80,7 +87,18 @@ function saveScreeningResults() {
 }
 
 function musicProfile() {
-  return buildMusicPreferenceProfile(state.musicFavorites);
+  return {
+    ...buildMusicPreferenceProfile(state.musicFavorites),
+    recentSongIds: Array.isArray(state.recentSongIds) ? state.recentSongIds : [],
+  };
+}
+
+function rememberRecommendedSongs(entry) {
+  const ids = (entry?.playlist || []).map((song) => song.id).filter(Boolean);
+  if (!ids.length) return;
+  const previous = Array.isArray(state.recentSongIds) ? state.recentSongIds : [];
+  state.recentSongIds = [...new Set([...ids, ...previous])].slice(0, RECENT_SONG_LIMIT);
+  saveRecentSongIds();
 }
 
 function readingProfile() {
@@ -492,6 +510,7 @@ async function analyzeCurrentText() {
     const entry = remote?.entry || { ...analyzeEntry(text, musicProfile()), analysisSource: 'local' };
     state.currentEntry = entry;
     state.entries = [entry, ...state.entries].slice(0, 21);
+    rememberRecommendedSongs(entry);
     saveEntries();
     invalidateMonthlyReport();
     renderAll();
@@ -541,6 +560,7 @@ function setListening(isListening, message) {
 
 function seedDemoEntries() {
   const now = Date.now();
+  state.recentSongIds = [];
   state.entries = demoEntries.map((text, index) => {
     const entry = analyzeEntry(text, musicProfile());
     entry.createdAt = new Date(now - index * 24 * 60 * 60 * 1000).toISOString();
@@ -548,6 +568,7 @@ function seedDemoEntries() {
     return entry;
   });
   state.currentEntry = state.entries[0];
+  state.entries.forEach(rememberRecommendedSongs);
   saveEntries();
   invalidateMonthlyReport();
   renderAll();
@@ -557,6 +578,7 @@ function resetDemo() {
   state.entries = [];
   state.musicFavorites = [];
   state.bookFavorites = [];
+  state.recentSongIds = [];
   state.monthlyReport = null;
   state.screeningResults = {};
   state.currentEntry = null;
@@ -564,6 +586,7 @@ function resetDemo() {
   localStorage.removeItem(SURVEY_KEY);
   localStorage.removeItem(MUSIC_FAVORITES_KEY);
   localStorage.removeItem(BOOK_FAVORITES_KEY);
+  localStorage.removeItem(RECENT_SONGS_KEY);
   localStorage.removeItem(MONTHLY_REPORT_KEY);
   localStorage.removeItem(SCREENING_RESULTS_KEY);
   $('#journalText').value = '';
